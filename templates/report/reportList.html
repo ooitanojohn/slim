@@ -1,0 +1,58 @@
+{#
+ /**
+  * レポートリスト画面。
+  *
+  * @author Shinzo SAITO
+  *
+  * ファイル名=reportList.html
+  * フォルダ=/ph35/sharereports/templates/report/
+ */
+#}
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Shinzo SAITO">
+    <title>レポートリスト | sharereports Sample</title>
+    <link rel="stylesheet" href="/css/main.css" type="text/css">
+  </head>
+  <body>
+    <header>
+      <h1>レポートリスト</h1>
+      <p><span>{{ session.name }}さんこんにちは </span><a href="/logout">ログアウト</a></p>
+    </header>
+    <nav id="breadcrumbs">
+      <ul>
+        <li><a href="/">TOP</a></li>
+        <li>レポートリスト</li>
+      </ul>
+    </nav> {% if flashMsg %} <section id="flashMsg">
+      <p>{{flashMsg}}</p>
+    </section> {% endif %} <section>
+      <p> 新規登録は<a href="/reports/goAdd">こちら</a>から </p>
+    </section>
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>作業日</th>
+            <th>作業内容</th>
+            <th>報告者名</th>
+            <th colspan="2">操作</th>
+          </tr>
+        </thead>
+        <tbody> {% for report in reportList %} <tr>
+            <td>{{report.rpDate}}</td>
+            <td>{{report.rpContent |u.truncate(13,'...')}}</td>
+            <td>{% for user in userList %} {% if user.id is same as report.userId %} {{ user.usName }}{% endif %}
+              {% endfor %} </td>
+            <td>
+              <a href="/reports/showDetail/{{report.id}}">詳細</a>
+            </td>
+          </tr> {% else %} <tr>
+            <td colspan="5">レポートは存在しません。</td>
+          </tr> {% endfor %} </tbody>
+      </table>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,71 @@
+{#
+ /**
+  * レポート詳細画面。
+  *
+  * @author Shinzo SAITO
+  *
+  * ファイル名=reportList.html
+  * フォルダ=/ph35/sharereports/templates/report/
+ */
+#}
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Shinzo SAITO">
+    <title>レポート詳細 | sharereports Sample</title>
+    <link rel="stylesheet" href="/css/main.css" type="text/css">
+  </head>
+  <body>
+    <header>
+      <h1>レポート詳細</h1>
+      <p><span>{{ session.name }}さんこんにちは</span><a href="/logout">ログアウト</a></p>
+    </header>
+    <nav id="breadcrumbs">
+      <ul>
+        <li><a href="/">TOP</a></li>
+        <li>レポート詳細</li>
+      </ul>
+    </nav> {% if flashMsg %} <section id="flashMsg">
+      <p>{{flashMsg}}</p>
+    </section> {% endif %} <section>
+      <p> 新規登録は<a href="/reports/goAdd">こちら</a>から </p>
+    </section>
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>レポートID</th>
+            <th>報告者とメールアドレス</th>
+            <th>作業日</th>
+            <th>作業開始時刻</th>
+            <th>作業終了時刻</th>
+            <th>作業種類名</th>
+            <th>作業内容</th>
+            <th>レポート登録日時</th>
+            <th colspan="2">編集</th>
+            <th colspan="2">削除</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{report.id}}</td>
+            <td>{{ user.usName}} {{ user.usMail }}</td>
+            <td>{{report.rpDate}}</td>
+            <td>{{report.rpTimeFrom}}</td>
+            <td>{{report.rpTimeTo}}</td>
+            <td>{{reportcate.rcName}}</td>
+            <td>{{report.rpContent }}</td>
+            <td>{{report.rpCreatedAt }}</td>
+            <td>
+              <a href="/reports/showDetail/{{report.id}}">編集</a>
+            </td>
+            <td>
+              <a href="/reports/showDetail/{{report.id}}">削除</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </body>
+</html>

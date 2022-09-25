@@ -1,0 +1,23 @@
+{
+  "name": "ph35slim/hyouka",
+  "description": "PH35の評価課題",
+  "autoload": {
+    "psr-4": {
+      "PH35slim\\ShareReports\\Classes\\": "classes/"
+    }
+  },
+  "authors": [
+    {
+      "name": "ooitanojohn",
+      "email": "qmkh733310@gmail.com"
+    }
+  ],
+  "require": {
+    "slim/slim": "^4.10",
+    "slim/http": "^1.2",
+    "slim/psr7": "^1.5",
+    "slim/twig-view": "^3.3",
+    "slim/flash": "^0.4.0",
+    "twig/string-extra": "^3.4"
+  }
+}
