@@ -1,0 +1,100 @@
+{#
+ /**
+  * レポート情報登録画面。
+  *
+  * @author Shinzo SAITO
+  *
+  * ファイル名=deptAdd.html
+  * フォルダ=/ph35/sharereports/treportlates/dept/
+ */
+  #}
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="author" content="Shinzo SAITO">
+    <title>レポート追加 | ShareReports</title>
+    <link rel="stylesheet" href="/css/main.css" type="text/css">
+  </head>
+  <body>
+    <header>
+      <h1>レポート情報追加</h1>
+      <p><span>{{ session.name }}さんこんにちは</span><a href="/logout">ログアウト</a></p>
+    </header>
+    <nav id="breadcrumbs">
+      <ul>
+        <li><a href="/">TOP</a></li>
+        <li><a href="/reports/showList">レポートリスト</a></li>
+        <li>レポート情報追加</li>
+      </ul>
+    </nav> {% if validationMsgs %} <section id="errorMsg">
+      <p>以下のメッセージをご確認ください。</p>
+      <ul> {% for msg in validationMsgs %} <li>{{msg}}</li> {% endfor %} </ul>
+    </section> {% endif %} <section>
+      <p> 情報を入力し、登録ボタンをクリックしてください。 </p>
+      <form action="/reports/edit/{{ report.id }}" method="post" class="box">
+        <label for="addRpDate"> 作業日(年月日)&nbsp;<span class="required">必須</span>
+          <span>年</span>
+          <select id="addRpDate" name="addRpDateYear" value="" required>
+            <option value="">----</option> {% for year in 2022..1980 %} <option value="{{ year }}"
+              {% if year == report.rpDateYear %} {{ 'selected' }} {% endif %}>{{ year }}
+            </option> {% endfor %}
+          </select>
+          <span>月</span>
+          <select id="addRpDate" name="addRpDateMonth" required>
+            <option value="">--</option> {% for month in 1..12 %} <option value="{{ month }}"
+              {% if month ==  report.rpDateMonth %} {{ 'selected' }} {% endif %}>{{ month }} </option> {% endfor %}
+          </select>
+          <span>日</span>
+          <select id="addRpDate" name="addRpDateDay" required>
+            <option value="">--</option> {% for day in 1..31 %} <option value="{{ day }}"
+              {% if day == report.rpDateDay %} {{ 'selected' }} {% endif %}>
+              {{ day }}
+            </option>{% endfor %}
+          </select>
+        </label><br>
+        <label for="addRpTimeFrom"> 作業開始時刻(時分)&nbsp;<span class="required">必須</span>
+          <span>時</span>
+          <select id="addRpTimeFrom" name="addRpTimeFromHour" required>
+            <option value="">--</option> {% for hour in 0..23 %} <option value="{{ hour }}"
+              {% if hour ==  report.rpTimeFromHour %} {{ 'selected' }} {% endif %}>{{ hour }} </option> {% endfor %}
+          </select>
+          <span>分</span>
+          <select id="addRpTimeFrom" name="addRpTimeFromTime" required>
+            <option value="">--</option> {% for time in 0..59 %} <option value="{{ time }}"
+              {% if time == report.rpTimeFromTime %} {{ 'selected' }} {% endif %}>
+              {{ time }}
+            </option>{% endfor %}
+          </select>
+        </label><br>
+        <label for="addRpTimeTo"> 作業終了時刻(時分)&nbsp;<span class="required">必須</span>
+          <span>時</span>
+          <select id="addRpTimeTo" name="addRpTimeToHour" required>
+            <option value="">--</option> {% for hour in 0..23 %} <option value="{{ hour }}"
+              {% if hour ==  report.rpTimeToHour %} {{ 'selected' }} {% endif %}>{{ hour }} </option> {% endfor %}
+          </select>
+          <span>分</span>
+          <select id="addRpTimeTo" name="addRpTimeToTime" required>
+            <option value="">--</option> {% for time in 0..59 %} <option value="{{ time }}"
+              {% if time == report.rpTimeToTime %} {{ 'selected' }} {% endif %}>
+              {{ time }}
+            </option>{% endfor %}
+          </select>
+        </label><br>
+        <label for="addReportcateId"> 作業種類&nbsp;<span class="required">必須</span>
+          <select id="addReportcateId" name="addReportcateId" required>
+            <option value="">--</option>{% for reportcate in reportcates %}<option value="{{ reportcate.id }}"
+              {% if reportcate.id == report.reportcateId %} {{ 'selected' }} {% endif %}>
+              {{ reportcate.id }}
+              {{ reportcate.rcName }}
+            </option> {% endfor %}
+          </select>
+        </label><br>
+        <label for="addRpContent"> 作業内容&nbsp;<span class="required">必須</span>
+          <textarea cols="50" rows="10" id="addRpContent" name="addRpContent" required>{{ report.rpContent }}</textarea>
+        </label><br>
+        <button type="submit">更新</button>
+      </form>
+    </section>
+  </body>
+</html>

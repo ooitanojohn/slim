@@ -145,7 +145,7 @@ class Report
     if ($this->rpTimeFrom === '') {
       return ['', '', ''];
     } else {
-      return explode('-', $this->rpTimeFrom);
+      return explode(':', $this->rpTimeFrom);
     }
   }
   /**
@@ -174,9 +174,9 @@ class Report
   public function explodeRpTimeTo(): array
   {
     if ($this->rpTimeTo === '') {
-      return ['', '', ''];
+      return ['', ''];
     } else {
-      return explode('-', $this->rpTimeTo);
+      return explode(':', $this->rpTimeTo);
     }
   }
   /**

@@ -117,9 +117,10 @@ class ReportController extends ParentController
   {
     $templatePath = "report/reportAdd.html";
     $assign = [];
-    // レポート詳細カラムを取得
+
     try {
       $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
+      // レポート詳細カラムを取得
       $reportcateDAO = new ReportcateDAO($db);
       $assign['reportcates'] = $reportcateDAO->findAll();
     } catch (PDOException $ex) {
@@ -186,6 +187,8 @@ class ReportController extends ParentController
           );
         }
       } else {
+        $reportcateDAO = new ReportcateDAO($db);
+        $assign['reportcates'] = $reportcateDAO->findAll();
         $assign["report"] = $report;
         $assign["validationMsgs"] = $validationMsgs;
       }
@@ -216,14 +219,129 @@ class ReportController extends ParentController
   {
     $templatePath = "report/reportEdit.html";
     $assign = [];
+    $editReportId = $args["id"];
+    try {
+      $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
+      // レポート情報
+      $reportDAO = new reportDAO($db);
+      $report = $reportDAO->findByReportId($editReportId);
+      // レポート詳細カラム
+      $reportcateDAO = new ReportcateDAO($db);
+      $assign['reportcates'] = $reportcateDAO->findAll();
+      if (empty($report)) {
+        throw new DataAccessException("部門情報の取得に失敗しました。");
+      } else {
+        $assign["report"] = $report;
+      }
+    } catch (PDOException $ex) {
+      $exCode = $ex->getCode();
+      throw new DataAccessException("DB接続に失敗しました。", $exCode, $ex);
+    } finally {
+      $db = null;
+    }
+    // ログイン情報
+    $assign['session'] = $_SESSION;
+    var_dump($assign);
+    $returnResponse = $this->view->render($response, $templatePath, $assign);
+    return $returnResponse;
+  }
 
-    $editreportId = $args["dpId"];
+  /**
+   * 部門情報編集処理。
+   */
+  public function reportEdit(ServerRequestInterface $request, ResponseInterface
+  $response, array $args): ResponseInterface
+  {
+    $templatePath = "report/reportEdit.html";
+    $isRedirect = false;
+    $assign = [];
+
+    $postParams = $request->getParsedBody();
+    foreach ($postParams as $key => $val) {
+      $val = str_replace([' ', '　'], "", $val);
+      ${$key} = trim($val);
+    }
+    $addRpDate = $addRpDateYear . '-' . $addRpDateMonth . '-' . $addRpDateDay;
+    $addRpTimeFrom = $addRpTimeFromHour . ':' . $addRpTimeFromTime;
+    $addRpTimeTo = $addRpTimeToHour . ':' . $addRpTimeToTime;
+
+    $report = new report();
+    $report->setId($args['id']);
+    $report->setRpDate($addRpDate);
+    $report->setRpTimeFrom($addRpTimeFrom);
+    $report->setRpTimeTo($addRpTimeTo);
+    $report->setRpContent($addRpContent);
+    $report->setReportcateId($addReportcateId);
+    $report->setUserId($_SESSION['id']);
+
+    // validate
+    $validationMsgs = [];
+    if (empty($addRpContent)) {
+      $validationMsgs[] = "作業内容の入力は必須です。";
+    }
+    if (strtotime($addRpDate . ' ' . $addRpTimeFrom) > strtotime($addRpDate . ' ' . $addRpTimeTo)) {
+      $validationMsgs[] = '作業開始時刻は作業終了時刻の以前の時刻である必要があります。';
+    }
+
     try {
       $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
       $reportDAO = new reportDAO($db);
-      $report = $reportDAO->findByPK($editreportId);
+      if (empty($validationMsgs)) {
+        $result = $reportDAO->update($report);
+        if ($result) {
+          $isRedirect = true;
+          $this->flash->addMessage(
+            "flashMsg",
+            "レポートID" . $report->getId() . "でレポート情報を更新しました。"
+          );
+        } else {
+          throw new
+            DataAccessException("情報更新に失敗しました。もう一度はじめからやり直してください。");
+        }
+      } else {
+        // レポート詳細カラム
+        $reportcateDAO = new ReportcateDAO($db);
+        $assign['reportcates'] = $reportcateDAO->findAll();
+        $assign["report"] = $report;
+        $assign["validationMsgs"] = $validationMsgs;
+      }
+    } catch (PDOException $ex) {
+      $exCode = $ex->getCode();
+      throw new DataAccessException("DB接続に失敗しました。", $exCode, $ex);
+    } finally {
+      $db = null;
+    }
+    // ログイン情報
+    $assign['session'] = $_SESSION;
+    if ($isRedirect) {
+      $returnResponse = $response->withStatus(302)->withHeader(
+        "Location",
+        "/reports/showList"
+      );
+    } else {
+      $returnResponse = $this->view->render($response, $templatePath, $assign);
+    }
+    return $returnResponse;
+  }
+
+  /**
+   * 部門情報削除確認画面表示処理。
+   */
+  public function confirmDelete(
+    ServerRequestInterface $request,
+    ResponseInterface $response,
+    array $args
+  ): ResponseInterface {
+    $templatePath = "report/reportConfirmDelete.html";
+    $assign = [];
+
+    $reportId = $args["id"];
+    try {
+      $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
+      $reportDAO = new reportDAO($db);
+      $report = $reportDAO->findByReportId($reportId);
       if (empty($report)) {
-        throw new DataAccessException("部門情報の取得に失敗しました。");
+        throw new DataAccessException("レポート情報の取得に失敗しました。");
       } else {
         $assign["report"] = $report;
       }
@@ -240,126 +358,19 @@ class ReportController extends ParentController
   }
 
   /**
-   * 部門情報編集処理。
-   */
-  public function reportEdit(ServerRequestInterface $request, ResponseInterface
-  $response, array $args): ResponseInterface
-  {
-    $templatePath = "report/reportEdit.html";
-    $isRedirect = false;
-    $assign = [];
-
-    $postParams = $request->getParsedBody();
-    $editDpId = $postParams["editDpId"];
-    $editDpNo = $postParams["editDpNo"];
-    $editDpName = $postParams["editDpName"];
-    $editDpLoc = $postParams["editDpLoc"];
-    $editDpName = str_replace(" ", " ", $editDpName);
-    $editDpLoc = str_replace(" ", " ", $editDpLoc);
-    $editDpName = trim($editDpName);
-    $editDpLoc = trim($editDpLoc);
-
-    $report = new report();
-    $report->setId($editDpId);
-    $report->setDpNo($editDpNo);
-    $report->setDpName($editDpName);
-    $report->setDpLoc($editDpLoc);
-
-    $validationMsgs = [];
-
-    if (empty($editDpName)) {
-      $validationMsgs[] = "部門名の入力は必須です。";
-    }
-
-    try {
-      $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
-      $reportDAO = new reportDAO($db);
-      $reportDB = $reportDAO->findByDpNo($report->getDpNo());
-      if (!empty($reportDB) && $reportDB->getId() != $editDpId) {
-        $validationMsgs[] =
-          "その部門番号はすでに使われています。別のものを指定してください。";
-      }
-      if (empty($validationMsgs)) {
-        $result = $reportDAO->update($report);
-        if ($result) {
-          $isRedirect = true;
-          $this->flash->addMessage(
-            "flashMsg",
-            "部門ID" . $editDpId . "で部門情報を更新しました。"
-          );
-        } else {
-          throw new
-            DataAccessException("情報更新に失敗しました。もう一度はじめからやり直してください。");
-        }
-      } else {
-        $assign["report"] = $report;
-        $assign["validationMsgs"] = $validationMsgs;
-      }
-    } catch (PDOException $ex) {
-      $exCode = $ex->getCode();
-      throw new DataAccessException("DB接続に失敗しました。", $exCode, $ex);
-    } finally {
-      $db = null;
-    }
-
-    if ($isRedirect) {
-      $returnResponse = $response->withStatus(302)->withHeader(
-        "Location",
-        "/ph35/scottadminslim/public/report/showreportList"
-      );
-    } else {
-      $returnResponse = $this->view->render($response, $templatePath, $assign);
-    }
-    return $returnResponse;
-  }
-
-  /**
-   * 部門情報削除確認画面表示処理。
-   */
-  public function confirmreportDelete(
-    ServerRequestInterface $request,
-    ResponseInterface $response,
-    array $args
-  ): ResponseInterface {
-    $templatePath = "report/reportConfirmDelete.html";
-    $assign = [];
-
-    $editreportId = $args["dpId"];
-    try {
-      $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
-      $reportDAO = new reportDAO($db);
-      $report = $reportDAO->findByPK($editreportId);
-      if (empty($report)) {
-        throw new DataAccessException("部門情報の取得に失敗しました。");
-      } else {
-        $assign["report"] = $report;
-      }
-    } catch (PDOException $ex) {
-      $exCode = $ex->getCode();
-      throw new DataAccessException("DB接続に失敗しました。", $exCode, $ex);
-    } finally {
-      $db = null;
-    }
-    $returnResponse = $this->view->render($response, $templatePath, $assign);
-    return $returnResponse;
-  }
-
-  /**
    * 部門情報削除処理。
    */
   public function reportDelete(ServerRequestInterface $request, ResponseInterface
   $response, array $args): ResponseInterface
   {
-    $postParams = $request->getParsedBody();
-    $deletereportId = $postParams["deletereportId"];
     try {
       $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
       $reportDAO = new reportDAO($db);
-      $result = $reportDAO->delete($deletereportId);
+      $result = $reportDAO->delete($args['id']);
       if ($result) {
         $this->flash->addMessage(
           "flashMsg",
-          "部門ID" . $deletereportId . "の部門情報を削除しました。"
+          "レポートID" . $args['id'] . "の部門情報を削除しました。"
         );
       } else {
         throw new
@@ -371,9 +382,11 @@ class ReportController extends ParentController
     } finally {
       $db = null;
     }
+    // ログイン情報
+    $assign['session'] = $_SESSION;
     $returnResponse = $response->withStatus(302)->withHeader(
       "Location",
-      "/ph35/scottadminslim/public/report/showreportList"
+      "/reports/showList"
     );
     return $returnResponse;
   }

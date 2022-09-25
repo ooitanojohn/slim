@@ -113,7 +113,7 @@ class ReportDAO
    */
   public function update(Report $report): bool
   {
-    $sqlUpdate = " UPDATE reports SET rp_date = :rp_date , = :rp_time_from ,rp_time_to = :rp_time_to,rp_content = :rp_content , rp_crated_at = NOW() ,reportcate_id = :reportcate_id ,user_id = :user_id WHERE id = :id";
+    $sqlUpdate = " UPDATE reports SET rp_date = :rp_date , rp_time_from = :rp_time_from ,rp_time_to = :rp_time_to , rp_content = :rp_content , rp_created_at = NOW() , reportcate_id = :reportcate_id , user_id = :user_id WHERE id = :id";
     $stmt = $this->db->prepare($sqlUpdate);
     $stmt->bindvalue(':rp_date', $report->getRpDate(), PDO::PARAM_STR);
     $stmt->bindvalue(':rp_time_from', $report->getRpTimeFrom(), PDO::PARAM_STR);
@@ -121,6 +121,7 @@ class ReportDAO
     $stmt->bindvalue(':rp_content', $report->getRpContent(), PDO::PARAM_STR);
     $stmt->bindvalue(':reportcate_id', $report->getReportcateId(), PDO::PARAM_INT);
     $stmt->bindvalue(':user_id', $report->getUserId(), PDO::PARAM_INT);
+    $stmt->bindvalue(':id', $report->getId(), PDO::PARAM_INT);
     $result = $stmt->execute();
     return $result;
   }

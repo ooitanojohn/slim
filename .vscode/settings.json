@@ -3,6 +3,7 @@
     "bootstrappers",
     "Loginid",
     "middlewares",
-    "Reportcate"
+    "Reportcate",
+    "reportcates"
   ]
 }

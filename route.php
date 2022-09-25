@@ -22,16 +22,10 @@ $app->post('/reports/add', ReportController::class . ':reportAdd')->add(new Logi
 // レポート詳細表示処理
 $app->get('/reports/showDetail/{id}', ReportController::class . ':showDetail')->add(new LoginCheck());
 // レポート編集画面商事処理
-$app->get('/reports/prepareEdit', ReportController::class . ':prepareEdit')->add(new LoginCheck());
+$app->get('/reports/prepareEdit/{id}', ReportController::class . ':prepareEdit')->add(new LoginCheck());
 // レポート更新処理
-$app->post('/reports/showList', function (Request $request, Response $response, $args) {
-  return true;
-});
+$app->post('/reports/edit/{id}', ReportController::class . ':reportEdit')->add(new LoginCheck());
 // レポート削除確認表示処理
-$app->get('/reports/confirmDelete', function (Request $request, Response $response, $args) {
-  return true;
-});
+$app->get('/reports/confirmDelete/{id}', ReportController::class . ':confirmDelete')->add(new LoginCheck());
 // レポート削除処理
-$app->get('/reports/delete', function (Request $request, Response $response, $args) {
-  return true;
-});
+$app->post('/reports/delete/{id}', ReportController::class . ':reportDelete')->add(new LoginCheck());
