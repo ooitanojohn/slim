@@ -29,7 +29,7 @@ class ReportController extends ParentController
   /**
    * 部門情報リスト画面表示処理。
    */
-  public function showReportList(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+  public function showList(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
   {
     // 各flashMsg取得
     $flashMessages = $this->flash->getMessages();
@@ -44,6 +44,10 @@ class ReportController extends ParentController
       $reportDAO = new ReportDAO($db);
       $reportList = $reportDAO->findAll();
       $assign["reportList"] = $reportList;
+      // join
+      $dist = $reportDAO->findJoin();
+      var_dump($dist);
+      
       // ユーザ一覧
       $userDAO = new UserDAO($db);
       $userList = $userDAO->findAll();
@@ -56,12 +60,20 @@ class ReportController extends ParentController
     }
     // ログイン情報
     $assign['session'] = $_SESSION;
+    // pagination ５件表示
+    if (!isset($args['page'])) {
+      $args['page'] = 1;
+    }
+    $lastPage = (int)$args['page'] * 5;
+    $assign['page'] = $args['id'];
+    $assign['pageMax'] = ceil(count($reportList) / 5);
+    $assign['reportList'] = array_slice($reportList, $lastPage - 5, $lastPage);
+
     $returnResponse = $this->view->render(
       $response,
       "report/reportList.html",
       $assign
     );
-    var_dump($assign);
     return $returnResponse;
   }
   /**
@@ -72,6 +84,13 @@ class ReportController extends ParentController
     $templatePath = "report/reportDetail.html";
     $assign = [];
     $reportId = $args["id"];
+
+    $flashMessages = $this->flash->getMessages();
+    if (isset($flashMessages)) {
+      $assign["flashMsg"] = $this->flash->getFirstMessage("flashMsg");
+    }
+    $this->cleanSession();
+
     try {
       $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
       // レポート情報
@@ -105,7 +124,7 @@ class ReportController extends ParentController
     }
     // ログイン情報
     $assign['session'] = $_SESSION;
-    var_dump($assign);
+    // var_dump($assign);
     $returnResponse = $this->view->render($response, $templatePath, $assign);
     return $returnResponse;
   }
@@ -113,7 +132,7 @@ class ReportController extends ParentController
   /**
    * 部門情報登録画面表示処理。
    */
-  public function goReportAdd(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+  public function goAdd(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
   {
     $templatePath = "report/reportAdd.html";
     $assign = [];
@@ -138,7 +157,7 @@ class ReportController extends ParentController
   /**
    * 部門情報登録処理。
    */
-  public function reportAdd(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
+  public function add(ServerRequestInterface $request, ResponseInterface $response, array $args): ResponseInterface
   {
     $templatePath = "report/reportAdd.html";
     $isRedirect = false;
@@ -160,7 +179,6 @@ class ReportController extends ParentController
     $report->setRpContent($addRpContent);
     $report->setReportcateId($addReportcateId);
     $report->setUserId($_SESSION['id']);
-
 
     // バリデート
     $validationMsgs = [];
@@ -208,7 +226,6 @@ class ReportController extends ParentController
     } else {
       $returnResponse = $this->view->render($response, $templatePath, $assign);
     }
-    var_dump($assign);
     return $returnResponse;
   }
 
@@ -241,7 +258,6 @@ class ReportController extends ParentController
     }
     // ログイン情報
     $assign['session'] = $_SESSION;
-    var_dump($assign);
     $returnResponse = $this->view->render($response, $templatePath, $assign);
     return $returnResponse;
   }
@@ -249,7 +265,7 @@ class ReportController extends ParentController
   /**
    * 部門情報編集処理。
    */
-  public function reportEdit(ServerRequestInterface $request, ResponseInterface
+  public function edit(ServerRequestInterface $request, ResponseInterface
   $response, array $args): ResponseInterface
   {
     $templatePath = "report/reportEdit.html";
@@ -283,6 +299,7 @@ class ReportController extends ParentController
       $validationMsgs[] = '作業開始時刻は作業終了時刻の以前の時刻である必要があります。';
     }
 
+    $flag = false;
     try {
       $db = new PDO(Conf::DB_DNS, Conf::DB_USERNAME, Conf::DB_PASSWORD);
       $reportDAO = new reportDAO($db);
@@ -313,10 +330,11 @@ class ReportController extends ParentController
     }
     // ログイン情報
     $assign['session'] = $_SESSION;
+
     if ($isRedirect) {
       $returnResponse = $response->withStatus(302)->withHeader(
         "Location",
-        "/reports/showList"
+        "/reports/showDetail/" . $report->getId()
       );
     } else {
       $returnResponse = $this->view->render($response, $templatePath, $assign);
@@ -360,7 +378,7 @@ class ReportController extends ParentController
   /**
    * 部門情報削除処理。
    */
-  public function reportDelete(ServerRequestInterface $request, ResponseInterface
+  public function delete(ServerRequestInterface $request, ResponseInterface
   $response, array $args): ResponseInterface
   {
     try {

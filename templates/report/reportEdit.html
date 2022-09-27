@@ -13,18 +13,19 @@
   <head>
     <meta charset="UTF-8">
     <meta name="author" content="Shinzo SAITO">
-    <title>レポート追加 | ShareReports</title>
+    <title>レポート情報編集 | ShareReports</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
     <link rel="stylesheet" href="/css/main.css" type="text/css">
   </head>
   <body>
     <header>
-      <h1>レポート情報追加</h1>
+      <h1>レポート情報編集</h1>
       <p><span>{{ session.name }}さんこんにちは</span><a href="/logout">ログアウト</a></p>
     </header>
     <nav id="breadcrumbs">
       <ul>
-        <li><a href="/">TOP</a></li>
         <li><a href="/reports/showList">レポートリスト</a></li>
+        <li><a href="/reports/showDetail/{{ report.id }}">詳細画面</a></li>
         <li>レポート情報追加</li>
       </ul>
     </nav> {% if validationMsgs %} <section id="errorMsg">

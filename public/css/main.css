@@ -8,14 +8,16 @@
 */
 
 @charset "utf-8";
+table td p {
+  word-break: break-all;
+}
+dl dd p {
+  word-break: break-all;
+}
+form label {
+  display: flex;
+}
 
-table {
-  border-collapse: collapse;
-}
-th,
-td {
-  border: solid 1px black;
-}
 #breadcrumbs ul li {
   display: inline;
   list-style-type: none;

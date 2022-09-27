@@ -9,8 +9,12 @@
 
 namespace PH35slim\ShareReports\Classes\daos;
 
+use Countable;
 use PDO;
 use PH35slim\ShareReports\Classes\entities\Report;
+use PH35slim\ShareReports\Classes\entities\User;
+use PH35slim\ShareReports\Classes\entities\Reportcate;
+
 
 class ReportDAO
 {
@@ -32,11 +36,40 @@ class ReportDAO
     $this->db = $db;
   }
   /**
+   * レポートリスト結合取得
+   * @param 
+   * @return array レポートリスト
+   */
+  public function findJoin(): Countable | array
+  {
+    $sql = "SELECT * FROM reports INNER JOIN users ON reports.user_id = users.id INNER JOIN reportcates ON reports.reportcate_id = reportcates.id ORDER BY rp_created_at DESC";
+    $stmt = $this->db->prepare($sql);
+    $result = $stmt->execute();
+    $reportList = [];
+    while ($row = $stmt->fetch()) {
+      $report = new Report();
+      $user = new User();
+      $reportcate = new Reportcate();
+
+      $report->setId($row["id"]);
+      $report->setRpDate($row["rp_date"]);
+      $report->setRpContent($row["rp_content"]);
+      $report->setRpCreatedAt($row["rp_created_at"]);
+
+      $user->setUsName($row["us_name"]);
+      $reportcate->setRcName($row["rc_name"]);
+
+      $reportList[$row['id']] = [$report,$user,$reportcate];
+    }
+    return $reportList;
+  }
+
+  /**
    * レポートリスト全取得
    *
    * @return Report Reportオブジェクト 該当なしの場合null
    */
-  public function findAll(): array
+  public function findAll(): Countable|array
   {
     $sql = "SELECT * FROM reports ORDER BY rp_date DESC";
     $stmt = $this->db->prepare($sql);

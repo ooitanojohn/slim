@@ -13,15 +13,18 @@
 <html lang="ja">
   <meta charset="UTF-8">
   <meta name="author" content="Shinzo SAITO">
-  <title>部門情報削除 | ScottAdminSlim Sample</title>
+  <title>レポート削除 | Sample</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
   <link rel="stylesheet" href="/css/main.css" type="text/css">
   </head>
-  <body <h1>レポート削除</h1>
+  <body>
+    <h1>レポート情報削除</h1>
     <nav id="breadcrumbs">
+      <p><span>{{ session.name }}さんこんにちは</span><a href="/logout">ログアウト</a></p>
       <ul>
-        <li><a href="/">TOP</a></li>
         <li><a href="/reports/showList">レポートリスト</a></li>
-        <li>レポート削除確認</li>
+        <li><a href="/reports/showDetail/{{ report.id }}">レポート詳細画面</a></li>
+        <li>レポート情報削除</li>
       </ul>
     </nav>
     <section>
@@ -32,7 +35,9 @@
         <dt>作業日</dt>
         <dd>{{ report.rpDate }}</dd>
         <dt>作業内容</dt>
-        <dd>{{ report.rpContent }}</dd>
+        <dd>
+          <pre>{{ report.rpContent|nl2br }}</pre>
+        </dd>
         <dt>レポート登録日時</dt>
         <dd>{{ report.rpCreatedAt }}</dd>
       </dl>

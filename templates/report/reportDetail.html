@@ -14,7 +14,19 @@
     <meta charset="UTF-8">
     <meta name="author" content="Shinzo SAITO">
     <title>レポート詳細 | sharereports Sample</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
     <link rel="stylesheet" href="/css/main.css" type="text/css">
+    <style>
+      table {
+        writing-mode: vertical-lr;
+      }
+
+      table th,
+      table td {
+        writing-mode: horizontal-tb;
+      }
+
+    </style>
   </head>
   <body>
     <header>
@@ -23,7 +35,7 @@
     </header>
     <nav id="breadcrumbs">
       <ul>
-        <li><a href="/">TOP</a></li>
+        <li><a href="/reports/showList">レポートリスト</a></li>
         <li>レポート詳細</li>
       </ul>
     </nav> {% if flashMsg %} <section id="flashMsg">
@@ -36,7 +48,8 @@
         <thead>
           <tr>
             <th>レポートID</th>
-            <th>報告者とメールアドレス</th>
+            <th>報告者</th>
+            <th>メールアドレス</th>
             <th>作業日</th>
             <th>作業開始時刻</th>
             <th>作業終了時刻</th>
@@ -49,12 +62,15 @@
         <tbody>
           <tr>
             <td>{{report.id}}</td>
-            <td>{{user.usName}} {{user.usMail}}</td>
+            <td>{{user.usName}} </td>
+            <td>{{user.usMail}}</td>
             <td>{{report.rpDate}}</td>
             <td>{{report.rpTimeFrom}}</td>
             <td>{{report.rpTimeTo}}</td>
             <td>{{reportcate.rcName}}</td>
-            <td>{{report.rpContent }}</td>
+            <td>
+              <pre>{{report.rpContent }}</pre>
+            </td>
             <td>{{report.rpCreatedAt }}</td>
             <td>
               <a href="/reports/prepareEdit/{{report.id}}">編集</a>
